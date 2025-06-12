@@ -1,0 +1,23 @@
+# Ignorar o diretório do ambiente virtual
+venv/
+.env/
+.venv/
+ENV/
+
+# Ignorar arquivos de banco de dados SQLite do Django
+autoboot/*.sqlite3
+.db.sqlite3
+
+# Ignorar arquivos de cache e logs
+*.log
+*.pot
+*.pyc
+__pycache__/
+
+# Ignorar arquivos de configuração do IDE
+.vscode/
+.idea/
+
+# Ignorar arquivos do sistema
+.DS_Store
+Thumbs.db
