@@ -6,25 +6,616 @@
     <title>Chatbot com LLaMA 2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/custom.css" rel="stylesheet">
+
+
+<style>
+
+
+
+body {
+    background-color: #0b0c0f;
+  }
+
+
+.send-img {
+  width: 30px;
+}
+
+.send-input {
+  outline: none;
+  display: flex;
+  border: none;
+  background: none;
+  width: 280px;
+  height: 40px;
+  border-radius: 7px;
+  background: none;
+  color: white;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: 5px;
+}
+
+.send-input::placeholder {
+  color: #828E9E;
+}
+
+.input-place {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 7px;
+  height: 40px;
+  width: 300px;
+  gap: 5px;
+  border: 1px solid #2E2F3A;
+}
+
+.send {
+  width: 130px;
+  height: 130px;
+  background-color: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 30px;
+}
+
+.send-icon {
+  width: 17px;
+}
+
+.hidden {
+  display: none;
+}
+
+.chatbot-container {
+  position: fixed;
+  bottom: 350px;
+  right: 230px;
+  z-index: 999;
+}
+
+.chat {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+/* From Uiverse.io by DevPTG */ 
+.chat {
+  display: flex;
+}
+
+.background {
+  background-color: #1950ff;
+  border-radius: 50%;
+  box-shadow: 0 2.1px 1.3px rgba(0, 0, 0, 0.044),
+    0 5.9px 4.2px rgba(0, 0, 0, 0.054), 0 12.6px 9.5px rgba(0, 0, 0, 0.061),
+    0 25px 20px rgba(0, 0, 0, 0.1);
+  height: 80px;
+  left: 10px;
+  position: absolute;
+  top: 10px;
+  width: 80px;
+}
+
+.chat-bubble {
+  cursor: pointer;
+  position: relative;
+}
+
+.bubble {
+  transform-origin: 50%;
+  transition: transform 500ms cubic-bezier(0.17, 0.61, 0.54, 0.9);
+}
+
+.line {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.75;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.line1 {
+  stroke-dasharray: 60 90;
+  stroke-dashoffset: -20;
+}
+
+.line2 {
+  stroke-dasharray: 67 87;
+  stroke-dashoffset: -18;
+}
+
+.circle {
+  fill: #ffffff;
+  stroke: none;
+  transform-origin: 50%;
+  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.active .bubble {
+  transform: translateX(24px) translateY(4px) rotate(45deg);
+}
+
+.active .line1 {
+  stroke-dashoffset: 21;
+}
+
+.active .line2 {
+  stroke-dashoffset: 30;
+}
+
+.active .circle {
+  transform: scale(0);
+}
+
+
+
+/* From Uiverse.io by kennyotsu */ 
+/*works janky on mobile :<*/
+.container {
+  position: relative;
+  width: 190px;
+  height: 254px;
+  transition: 200ms;
+  margin-top: 15%;
+}
+
+.container:active {
+  width: 180px;
+  height: 245px;
+}
+
+#card {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  transition: 700ms;
+  background: linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%);
+}
+
+.subtitle {
+  transform: translateY(160px);
+  color: rgb(134, 110, 221);
+  text-align: center;
+  width: 100%;
+}
+
+.title {
+  opacity: 0;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out-out;
+  transition-delay: 100ms;
+  position: absolute;
+  font-size: x-large;
+  font-weight: bold;
+  color: white;
+}
+
+.tracker:hover ~ #card .title {
+  opacity: 1;
+}
+
+#prompt {
+  bottom: 8px;
+  left: 12px;
+  z-index: 20;
+  font-size: 20px;
+  font-weight: bold;
+  transition: 300ms ease-in-out-out;
+  position: absolute;
+  max-width: 110px;
+  color: rgb(255, 255, 255);
+}
+
+.tracker {
+  position: absolute;
+  z-index: 200;
+  width: 100%;
+  height: 100%;
+}
+
+.tracker:hover {
+  cursor: pointer;
+}
+
+.tracker:hover ~ #card #prompt {
+  opacity: 0;
+}
+
+.tracker:hover ~ #card {
+  transition: 300ms;
+  filter: brightness(1.1);
+}
+
+.container:hover #card::before {
+  transition: 200ms;
+  content: '';
+  opacity: 80%;
+}
+
+.canvas {
+  perspective: 800px;
+  inset: 0;
+  z-index: 200;
+  position: absolute;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas: "tr-1 tr-2 tr-3 tr-4 tr-5"
+    "tr-6 tr-7 tr-8 tr-9 tr-10"
+    "tr-11 tr-12 tr-13 tr-14 tr-15"
+    "tr-16 tr-17 tr-18 tr-19 tr-20"
+    "tr-21 tr-22 tr-23 tr-24 tr-25";
+}
+
+#card::before {
+  content: '';
+  background: linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%);
+  filter: blur(2rem);
+  opacity: 30%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1;
+  transition: 200ms;
+}
+
+.tr-1 {
+  grid-area: tr-1;
+}
+
+.tr-2 {
+  grid-area: tr-2;
+}
+
+.tr-3 {
+  grid-area: tr-3;
+}
+
+.tr-4 {
+  grid-area: tr-4;
+}
+
+.tr-5 {
+  grid-area: tr-5;
+}
+
+.tr-6 {
+  grid-area: tr-6;
+}
+
+.tr-7 {
+  grid-area: tr-7;
+}
+
+.tr-8 {
+  grid-area: tr-8;
+}
+
+.tr-9 {
+  grid-area: tr-9;
+}
+
+.tr-10 {
+  grid-area: tr-10;
+}
+
+.tr-11 {
+  grid-area: tr-11;
+}
+
+.tr-12 {
+  grid-area: tr-12;
+}
+
+.tr-13 {
+  grid-area: tr-13;
+}
+
+.tr-14 {
+  grid-area: tr-14;
+}
+
+.tr-15 {
+  grid-area: tr-15;
+}
+
+.tr-16 {
+  grid-area: tr-16;
+}
+
+.tr-17 {
+  grid-area: tr-17;
+}
+
+.tr-18 {
+  grid-area: tr-18;
+}
+
+.tr-19 {
+  grid-area: tr-19;
+}
+
+.tr-20 {
+  grid-area: tr-20;
+}
+
+.tr-21 {
+  grid-area: tr-21;
+}
+
+.tr-22 {
+  grid-area: tr-22;
+}
+
+.tr-23 {
+  grid-area: tr-23;
+}
+
+.tr-24 {
+  grid-area: tr-24;
+}
+
+.tr-25 {
+  grid-area: tr-25;
+}
+
+.tr-1:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(20deg) rotateY(-10deg) rotateZ(0deg);
+}
+
+.tr-2:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(20deg) rotateY(-5deg) rotateZ(0deg);
+}
+
+.tr-3:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(20deg) rotateY(0deg) rotateZ(0deg);
+}
+
+.tr-4:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(20deg) rotateY(5deg) rotateZ(0deg);
+}
+
+.tr-5:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(20deg) rotateY(10deg) rotateZ(0deg);
+}
+
+.tr-6:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(10deg) rotateY(-10deg) rotateZ(0deg);
+}
+
+.tr-7:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(10deg) rotateY(-5deg) rotateZ(0deg);
+}
+
+.tr-8:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(10deg) rotateY(0deg) rotateZ(0deg);
+}
+
+.tr-9:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(10deg) rotateY(5deg) rotateZ(0deg);
+}
+
+.tr-10:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(10deg) rotateY(10deg) rotateZ(0deg);
+}
+
+.tr-11:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(0deg) rotateY(-10deg) rotateZ(0deg);
+}
+
+.tr-12:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(0deg) rotateY(-5deg) rotateZ(0deg);
+}
+
+.tr-13:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+}
+
+.tr-14:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(0deg) rotateY(5deg) rotateZ(0deg);
+}
+
+.tr-15:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(0deg) rotateY(10deg) rotateZ(0deg);
+}
+
+.tr-16:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-10deg) rotateY(-10deg) rotateZ(0deg);
+}
+
+.tr-17:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-10deg) rotateY(-5deg) rotateZ(0deg);
+}
+
+.tr-18:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-10deg) rotateY(0deg) rotateZ(0deg);
+}
+
+.tr-19:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-10deg) rotateY(5deg) rotateZ(0deg);
+}
+
+.tr-20:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-10deg) rotateY(10deg) rotateZ(0deg);
+}
+
+.tr-21:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-20deg) rotateY(-10deg) rotateZ(0deg);
+}
+
+.tr-22:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-20deg) rotateY(-5deg) rotateZ(0deg);
+}
+
+.tr-23:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-20deg) rotateY(0deg) rotateZ(0deg);
+}
+
+.tr-24:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-20deg) rotateY(5deg) rotateZ(0deg);
+}
+
+.tr-25:hover ~ #card {
+  transition: 125ms ease-in-out;
+  transform: rotateX(-20deg) rotateY(10deg) rotateZ(0deg);
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+   /* iOS Safari */
+  -webkit-user-select: none;
+   /* Safari */
+   /* Konqueror HTML */
+  -moz-user-select: none;
+   /* Old versions of Firefox */
+  -ms-user-select: none;
+   /* Internet Explorer/Edge */
+  user-select: none;
+   /* Non-prefixed version, currently
+									supported by Chrome, Edge, Opera and Firefox */
+}
+
+</style>
+
+
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-light bg-primary mb-3">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1 text-white">Chatbot com LLaMA 2</span>
-        </div>
-    </nav>
-    <div class="container">
-        <div id="chat-area" class="mb-3 p-3 rounded bg-white shadow-sm" style="height: 400px; overflow-y: auto;"></div>
-        <form id="chat-form" class="d-flex">
-            <input id="question-input" type="text" class="form-control me-2" placeholder="Digite sua pergunta..." autocomplete="off" required>
-            <button class="btn btn-primary" type="submit">Enviar</button>
-        </form>
-        <div id="loading" class="mt-2" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Carregando...</span>
-            </div>
-        </div>
+<body >
+
+<body>
+    <div class="container noselect">
+  <div class="canvas">
+    <div class="tracker tr-1"></div>
+    <div class="tracker tr-2"></div>
+    <div class="tracker tr-3"></div>
+    <div class="tracker tr-4"></div>
+    <div class="tracker tr-5"></div>
+    <div class="tracker tr-6"></div>
+    <div class="tracker tr-7"></div>
+    <div class="tracker tr-8"></div>
+    <div class="tracker tr-9"></div>
+    <div class="tracker tr-10"></div>
+    <div class="tracker tr-11"></div>
+    <div class="tracker tr-12"></div>
+    <div class="tracker tr-13"></div>
+    <div class="tracker tr-14"></div>
+    <div class="tracker tr-15"></div>
+    <div class="tracker tr-16"></div>
+    <div class="tracker tr-17"></div>
+    <div class="tracker tr-18"></div>
+    <div class="tracker tr-19"></div>
+    <div class="tracker tr-20"></div>
+    <div class="tracker tr-21"></div>
+    <div class="tracker tr-22"></div>
+    <div class="tracker tr-23"></div>
+    <div class="tracker tr-24"></div>
+    <div class="tracker tr-25"></div>
+    <div id="card">
+    <p id="prompt">Olhe aqui :D</p>
+      <div class="title">Teste nosso,<br>chatbot</div>
     </div>
+  </div>
+</div>
+
+  <!-- Bolha de Chat -->
+  <div class="chat" id="chat-toggle">
+    <div class="background"></div>
+    <svg viewBox="0 0 100 100" height="100" width="100" class="chat-bubble">
+      <g class="bubble">
+        <path class="line line1" d="M 30.7873,85.113394 30.7873,46.556405 C 30.7873,41.101961 36.826342,35.342 40.898074,35.342 H 59.113981 C 63.73287,35.342 69.29995,40.103201 69.29995,46.784744" />
+        <path class="line line2" d="M 13.461999,65.039335 H 58.028684 C 63.483128,65.039335 69.243089,59.000293 69.243089,54.928561 V 45.605853 C 69.243089,40.986964 65.02087,35.419884 58.339327,35.419884" />
+      </g>
+      <circle class="circle circle1" cx="42.5" cy="50.7" r="1.9" />
+      <circle class="circle circle2" cx="49.9" cy="50.7" r="1.9" />
+      <circle class="circle circle3" cx="57.3" cy="50.7" r="1.9" />
+    </svg>
+  </div>
+
+  <!-- Chatbot (inicialmente oculto) -->
+  <div class="chatbot-container hidden" id="chatbot">
+    <div class="container">
+      <div id="chat-area" class="mt-4 mb-3 p-3 rounded bg-dark shadow-sm" style="width: 300px; height: 400px; overflow-y: auto;"></div>
+
+      <form id="chat-form" class="d-flex">
+        <div class="sender-area">
+          <div class="input-place bg-dark">
+            <input id="question-input" placeholder="Digite sua pergunta..." class="send-input" type="text">
+            <button class="btn send" type="submit">
+              <svg class="send-icon" viewBox="0 0 512 512">
+                <path fill="#6B6C7B" d="M481.508,210.336L68.414,38.926c-17.403-7.222-37.064-4.045-51.309,8.287C2.86,59.547-3.098,78.551,1.558,96.808 L38.327,241h180.026c8.284,0,15.001,6.716,15.001,15.001c0,8.284-6.716,15.001-15.001,15.001H38.327L1.558,415.193 c-4.656,18.258,1.301,37.262,15.547,49.595c14.274,12.357,33.937,15.495,51.31,8.287l413.094-171.409 C500.317,293.862,512,276.364,512,256.001C512,235.638,500.317,218.139,481.508,210.336z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div id="loading" class="mt-2" style="display: none;">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+
+
+
+    <!-- From Uiverse.io by reglobby --> 
+<!-- <div class="grid-plane"></div> -->
+<!-- <div class="stars-container">
+  <div class="star-layer"></div>
+  <div class="star-layer"></div>
+  <div class="star-layer"></div>
+</div> -->
+
+
+
+<script>
+  const chatToggle = document.getElementById("chat-toggle");
+  const chatbot = document.getElementById("chatbot");
+
+  chatToggle.addEventListener("click", () => {
+    chatbot.classList.remove("hidden");
+  });
+</script>
+
+
     <script src="/static/js/chatbot.js"></script>
 </body>
 </html> 

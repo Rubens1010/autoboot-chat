@@ -26,26 +26,9 @@
     display: flex;
     flex-direction: column;
 }
-@media (max-width: 600px) {
-    #chat-area {
-        height: 300px;
-    }
-    .bubble {
-        font-size: 0.95rem;
-    }
-}
-body.dark {
-    background: #181a1b !important;
-    color: #f1f1f1;
-}
-body.dark #chat-area {
-    background: #23272b;
-}
-body.dark .bubble.user {
-    background: #1565c0;
-    color: #fff;
-}
-body.dark .bubble.bot {
-    background: #388e3c;
-    color: #fff;
-} 
+
+
+
+
+
+
