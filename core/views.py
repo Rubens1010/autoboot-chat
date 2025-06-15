@@ -195,17 +195,17 @@ def ask(request):
 
             # 🔁 Roteiro de atendimento de telecom
             logger.info("Verificando se está em atendimento de telecom")
-            if user_id in sessions or "oi" in question.lower() or "quero contratar" in question.lower():
+            motivo = detectar_motivo_desistencia(question)
+            if user_id in sessions or str(question) in question.lower():
+                # 🤖 Detectando intenção de desistência
+                motivo = detectar_motivo_desistencia(question)
+                if motivo:
+                    logger.info(f"Desistência detectada: {motivo}")
+                    resposta_reativa = mensagem_reativa_aleatoria(motivo)
+                    if resposta_reativa:
+                        return JsonResponse({'answer': resposta_reativa})
                 resposta = atendimento_telecom(user_id, question)
                 return JsonResponse({'answer': resposta})
-
-            # 🤖 Detectando intenção de desistência
-            motivo = detectar_motivo_desistencia(question)
-            if motivo:
-                logger.info(f"Desistência detectada: {motivo}")
-                resposta_reativa = mensagem_reativa_aleatoria(motivo)
-                if resposta_reativa:
-                    return JsonResponse({'answer': resposta_reativa})
 
             # 🤖 Carregar o modelo se necessário
             logger.info("Verificando se o modelo está carregado")
